@@ -1,0 +1,341 @@
+import React, { useState } from 'react';
+import { 
+  Sparkles, 
+  Bot, 
+  Cpu, 
+  GitBranch, 
+  FileText, 
+  CheckCheck, 
+  ShieldCheck, 
+  Check, 
+  HelpCircle,
+  Code2
+} from 'lucide-react';
+
+interface NewProjectWizardProps {
+  onCreate: (data: {
+    name: string;
+    description?: string;
+    requirement: string;
+    options: Record<string, any>;
+    provider?: string;
+    api_key?: string;
+    model?: string;
+  }) => Promise<void>;
+  onCancel: () => void;
+  onLaunchDemo: () => void;
+}
+
+const TEMPLATES = [
+  {
+    title: "FastAPI Employee Management",
+    prompt: "Build a FastAPI REST API for an employee management system with CRUD operations, SQLite database, validation schemas, unit tests, and API documentation."
+  },
+  {
+    title: "Task Management & Status Engine",
+    prompt: "Build a FastAPI REST API for a task management application with SQLite, CRUD operations, priority tags, validation, unit tests and Swagger documentation."
+  },
+  {
+    title: "Flask URL Shortener API",
+    prompt: "Build a Flask REST API for a URL shortener service with SQLite storage, analytics tracking for click counts, input validation, and pytest test suite."
+  },
+  {
+    title: "Data ETL Pipeline CLI",
+    prompt: "Build a Python command-line ETL tool that parses JSON/CSV data records, validates schemas, loads into a SQLite database with indexes, and includes unit tests."
+  }
+];
+
+export const NewProjectWizard: React.FC<NewProjectWizardProps> = ({
+  onCreate,
+  onCancel,
+  onLaunchDemo
+}) => {
+  const [name, setName] = useState('FastAPI-Task-Service');
+  const [requirement, setRequirement] = useState(TEMPLATES[0].prompt);
+  const [provider, setProvider] = useState<'demo' | 'openai' | 'gemini'>('demo');
+  const [apiKey, setApiKey] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [options, setOptions] = useState({
+    generate_tests: true,
+    generate_docs: true,
+    initialize_git: true,
+    run_code_review: true,
+    enable_mcp: true,
+    auto_approve: true
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !requirement.trim()) return;
+
+    setLoading(true);
+    try {
+      await onCreate({
+        name: name.trim(),
+        description: `Autonomous project for: ${name.trim()}`,
+        requirement: requirement.trim(),
+        options,
+        provider,
+        api_key: apiKey ? apiKey.trim() : undefined
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#090d16] flex justify-center">
+      <div className="w-full max-w-3xl space-y-6">
+        {/* Header */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+            <Bot className="w-4 h-4" />
+            <span>Autonomous Software Engineer</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white">Create New AI Project</h1>
+          <p className="text-xs md:text-sm text-slate-400">
+            Specify your requirements. The multi-agent workflow will plan, design, write code, run pytest, fix errors, and generate documentation.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Project Details Card */}
+          <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Project Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Employee-Management-API"
+                required
+                className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono transition-colors"
+              />
+            </div>
+
+            {/* Requirement Prompt */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Software Requirement Prompt
+                </label>
+                <span className="text-[11px] text-slate-500">Natural language specification</span>
+              </div>
+              
+              <textarea
+                rows={5}
+                value={requirement}
+                onChange={(e) => setRequirement(e.target.value)}
+                placeholder="Describe what you want to build in detail..."
+                required
+                className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl p-3.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors leading-relaxed"
+              />
+
+              {/* Template Buttons */}
+              <div className="mt-3 space-y-1.5">
+                <span className="text-[11px] font-medium text-slate-400">Quick Inspiration Templates:</span>
+                <div className="flex flex-wrap gap-2">
+                  {TEMPLATES.map((tmpl, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setName(tmpl.title.replace(/\s+/g, '-'));
+                        setRequirement(tmpl.prompt);
+                      }}
+                      className="text-[11px] bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 px-2.5 py-1 rounded-lg transition-colors"
+                    >
+                      {tmpl.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Workflow Options */}
+          <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+            <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+              Agent Workflow Pipeline Options
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16]/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={options.generate_tests}
+                  onChange={(e) => setOptions({ ...options, generate_tests: e.target.checked })}
+                  className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                    <CheckCheck className="w-3.5 h-3.5 text-teal-400" />
+                    Generate & Run Pytest Tests
+                  </div>
+                  <div className="text-[11px] text-slate-500">Executes real pytest in workspace</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16]/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={options.generate_docs}
+                  onChange={(e) => setOptions({ ...options, generate_docs: e.target.checked })}
+                  className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                    Generate Production README
+                  </div>
+                  <div className="text-[11px] text-slate-500">API specs, setup guides, and curl examples</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16]/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={options.initialize_git}
+                  onChange={(e) => setOptions({ ...options, initialize_git: e.target.checked })}
+                  className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                    <GitBranch className="w-3.5 h-3.5 text-purple-400" />
+                    Initialize Git Repository
+                  </div>
+                  <div className="text-[11px] text-slate-500">Creates atomic commits at each agent phase</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16]/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={options.run_code_review}
+                  onChange={(e) => setOptions({ ...options, run_code_review: e.target.checked })}
+                  className="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                    Run Automated Code Review
+                  </div>
+                  <div className="text-[11px] text-slate-500">Security, performance & design review</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* LLM Provider Selection */}
+          <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+            <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <Bot className="w-3.5 h-3.5 text-indigo-400" />
+              AI Model & Provider
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div
+                onClick={() => setProvider('demo')}
+                className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  provider === 'demo'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-white shadow-md shadow-emerald-500/10'
+                    : 'bg-[#090d16]/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-emerald-400">✨ Demo Mode</span>
+                  {provider === 'demo' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  Zero setup, no API key needed. Real pytest & file creation.
+                </div>
+              </div>
+
+              <div
+                onClick={() => setProvider('openai')}
+                className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  provider === 'openai'
+                    ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-md shadow-indigo-500/10'
+                    : 'bg-[#090d16]/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-indigo-400">OpenAI GPT-4o</span>
+                  {provider === 'openai' && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  Requires OpenAI API key in settings or below.
+                </div>
+              </div>
+
+              <div
+                onClick={() => setProvider('gemini')}
+                className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                  provider === 'gemini'
+                    ? 'bg-purple-500/10 border-purple-500 text-white shadow-md shadow-purple-500/10'
+                    : 'bg-[#090d16]/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-purple-400">Google Gemini</span>
+                  {provider === 'gemini' && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  Gemini 1.5 Pro / Flash.
+                </div>
+              </div>
+            </div>
+
+            {provider !== 'demo' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  {provider === 'openai' ? 'OpenAI API Key (Optional if set in environment)' : 'Google API Key (Optional if set in environment)'}
+                </label>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="sk-... or AIzaSy..."
+                  className="w-full bg-[#090d16] border border-slate-700/80 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="text-xs font-semibold text-slate-400 hover:text-slate-200 px-4 py-2.5 rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  <span>Initializing Agents...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-indigo-200" />
+                  <span>🚀 Build with AI</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
