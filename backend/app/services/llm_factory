@@ -1,0 +1,61 @@
+import os
+import json
+import logging
+from typing import Optional, Dict, Any, Union
+from backend.app.config import settings
+
+logger = logging.getLogger("llm_factory")
+
+def get_llm_client(
+    provider: Optional[str] = None,
+    api_key: Optional[str] = None,
+    model: Optional[str] = None,
+    temperature: float = 0.2
+):
+    """
+    Returns an instantiated LangChain ChatModel or indicator for Demo Mode.
+    """
+    prov = (provider or settings.DEFAULT_PROVIDER).lower()
+    
+    if prov == "openai":
+        from langchain_openai import ChatOpenAI
+        key = api_key or settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
+        if not key:
+            raise ValueError("OpenAI API Key is missing. Please configure it in Settings or environment.")
+        return ChatOpenAI(
+            model=model or settings.OPENAI_MODEL,
+            api_key=key,
+            temperature=temperature
+        )
+        
+    elif prov == "gemini":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        key = api_key or settings.GOOGLE_API_KEY or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not key:
+            raise ValueError("Google Gemini API Key is missing. Please configure it in Settings or environment.")
+        return ChatGoogleGenerativeAI(
+            model=model or settings.GEMINI_MODEL,
+            google_api_key=key,
+            temperature=temperature
+        )
+        
+    else:
+        # Default to Demo / Deterministic Agent Engine
+        return "demo"
+
+def parse_json_response(content: str) -> Dict[str, Any]:
+    """
+    Safely parses JSON from LLM output, extracting from markdown ```json ``` blocks if present.
+    """
+    cleaned = content.strip()
+    if "```json" in cleaned:
+        cleaned = cleaned.split("```json", 1)[1]
+        if "```" in cleaned:
+            cleaned = cleaned.split("```", 1)[0]
+    elif "```" in cleaned:
+        cleaned = cleaned.split("```", 1)[1]
+        if "```" in cleaned:
+            cleaned = cleaned.split("```", 1)[0]
+            
+    cleaned = cleaned.strip()
+    return json.loads(cleaned)
