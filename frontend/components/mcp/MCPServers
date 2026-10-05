@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import { Cpu, Copy, Check, Terminal, ExternalLink, Code2, Shield } from 'lucide-react';
+
+export const MCPView: React.FC = () => {
+  const [copied, setCopied] = useState(false);
+
+  const mcpConfigSnippet = JSON.stringify({
+    mcpServers: {
+      "autonomous-ai-engineer": {
+        url: "http://127.0.0.1:8000/api/mcp",
+        transport: "http"
+      }
+    }
+  }, null, 2);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(mcpConfigSnippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#090d16] flex justify-center">
+      <div className="w-full max-w-3xl space-y-6">
+        {/* Header */}
+        <div>
+          <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+            <Cpu className="w-4 h-4" />
+            <span>Model Context Protocol</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white">MCP Tool Server Integration</h1>
+          <p className="text-xs md:text-sm text-slate-400 mt-1">
+            Connect external MCP clients (Cursor, Claude Desktop, VS Code, or custom AI agents) to control workspaces and execute software engineering workflows.
+          </p>
+        </div>
+
+        {/* Configuration Code Card */}
+        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold text-slate-200">
+              Configuration Snippet (<code className="text-indigo-400">claude_desktop_config.json</code>)
+            </div>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition-colors"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? 'Copied' : 'Copy JSON'}</span>
+            </button>
+          </div>
+
+          <div className="bg-[#090d16] border border-slate-800 rounded-xl p-4 font-mono text-xs text-indigo-300 overflow-x-auto leading-relaxed">
+            <pre>{mcpConfigSnippet}</pre>
+          </div>
+        </div>
+
+        {/* Exposed Tools Manifest */}
+        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+            Exposed MCP Tools
+          </h2>
+
+          <div className="space-y-3">
+            <div className="p-3.5 rounded-xl bg-[#090d16]/60 border border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-indigo-400">create_project_file</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">file-write</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Creates or updates a file in the project workspace with specified content and validates path bounds.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16]/60 border border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-indigo-400">read_project_file</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">file-read</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Reads the content of an existing file in the project workspace.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16]/60 border border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-emerald-400">run_project_tests</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">sandbox-exec</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Executes pytest inside the project workspace and returns structured failure and pass diagnostics.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16]/60 border border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-purple-400">get_project_structure</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">tree</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Retrieves the full recursive directory tree structure of a project workspace.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#090d16]/60 border border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-amber-400">execute_sandboxed_command</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">command</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Executes a shell command inside the project workspace under security constraints and strict timeouts.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
