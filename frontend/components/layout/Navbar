@@ -1,0 +1,148 @@
+import React from 'react';
+import { ViewMode } from '../../types';
+import { 
+  Bot, 
+  LayoutDashboard, 
+  FolderGit2, 
+  Settings, 
+  Terminal, 
+  Sparkles, 
+  Plus, 
+  Cpu, 
+  ShieldCheck
+} from 'lucide-react';
+
+interface NavbarProps {
+  currentView: ViewMode;
+  onSelectView: (view: ViewMode) => void;
+  activeProjectName?: string;
+  onLaunchDemo: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({
+  currentView,
+  onSelectView,
+  activeProjectName,
+  onLaunchDemo
+}) => {
+  return (
+    <header className="h-14 bg-[#0d1322] border-b border-[#1f293d] px-4 flex items-center justify-between select-none z-30">
+      {/* Brand & Active Project Indicator */}
+      <div className="flex items-center gap-3">
+        <div 
+          onClick={() => onSelectView('dashboard')}
+          className="flex items-center gap-2.5 cursor-pointer group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 p-0.5 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-[#0d1322] rounded-[10px] flex items-center justify-center">
+              <Bot className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-sm tracking-tight text-slate-100">Autonomous AI</span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                Engineer
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Agent Workspace v1.0
+            </div>
+          </div>
+        </div>
+
+        {activeProjectName && currentView === 'ide' && (
+          <div className="hidden md:flex items-center gap-2 pl-4 border-l border-slate-800 text-xs text-slate-300">
+            <span className="text-slate-500">Project:</span>
+            <span className="font-medium bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 text-slate-200">
+              {activeProjectName}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Center Navigation Tabs */}
+      <nav className="flex items-center gap-1 bg-[#090d16]/80 p-1 rounded-lg border border-[#1f293d]/80">
+        <button
+          onClick={() => onSelectView('dashboard')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            currentView === 'dashboard'
+              ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <LayoutDashboard className="w-3.5 h-3.5" />
+          <span>Dashboard</span>
+        </button>
+
+        <button
+          onClick={() => onSelectView('wizard')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            currentView === 'wizard'
+              ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>New Project</span>
+        </button>
+
+        <button
+          onClick={() => onSelectView('ide')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            currentView === 'ide'
+              ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Terminal className="w-3.5 h-3.5" />
+          <span>IDE Workspace</span>
+        </button>
+
+        <button
+          onClick={() => onSelectView('mcp')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            currentView === 'mcp'
+              ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Cpu className="w-3.5 h-3.5" />
+          <span>MCP Server</span>
+        </button>
+
+        <button
+          onClick={() => onSelectView('settings')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            currentView === 'settings'
+              ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          }`}
+        >
+          <Settings className="w-3.5 h-3.5" />
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      {/* Right Quick Action Buttons */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onLaunchDemo}
+          className="flex items-center gap-1.5 text-xs font-medium bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-lg shadow-md shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-emerald-200 animate-spin-slow" />
+          <span>Try Demo</span>
+        </button>
+
+        <button
+          onClick={() => onSelectView('wizard')}
+          className="flex items-center gap-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg shadow-md shadow-indigo-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Create Project</span>
+        </button>
+      </div>
+    </header>
+  );
+};
