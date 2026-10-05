@@ -1,0 +1,56 @@
+import pytest
+from pathlib import Path
+from backend.app.tools.workspace_tools import (
+    create_file,
+    read_file,
+    update_file,
+    delete_file,
+    list_directory,
+    search_code,
+    get_file_tree
+)
+from backend.app.tools.git_tools import git_init, git_commit, git_status, git_log
+
+def test_file_crud_operations(tmp_path):
+    # Create
+    res = create_file(tmp_path, "sub/test.txt", "Hello Autonomous AI")
+    assert res["success"] is True
+    assert (tmp_path / "sub" / "test.txt").exists()
+
+    # Read
+    read_res = read_file(tmp_path, "sub/test.txt")
+    assert read_res["success"] is True
+    assert read_res["content"] == "Hello Autonomous AI"
+
+    # Update
+    update_res = update_file(tmp_path, "sub/test.txt", "Updated Content")
+    assert update_res["success"] is True
+    assert read_file(tmp_path, "sub/test.txt")["content"] == "Updated Content"
+
+    # Search
+    search_res = search_code(tmp_path, "Updated")
+    assert search_res["success"] is True
+    assert len(search_res["matches"]) == 1
+
+    # Tree
+    tree = get_file_tree(tmp_path)
+    assert len(tree) == 1
+    assert tree[0]["name"] == "sub"
+
+    # Delete
+    del_res = delete_file(tmp_path, "sub/test.txt")
+    assert del_res["success"] is True
+    assert not (tmp_path / "sub" / "test.txt").exists()
+
+def test_git_operations(tmp_path):
+    init_res = git_init(tmp_path)
+    assert init_res["success"] is True
+    assert (tmp_path / ".git").exists()
+
+    create_file(tmp_path, "README.md", "# Test Project")
+    commit_res = git_commit(tmp_path, "Initial commit")
+    assert commit_res["success"] is True
+
+    log = git_log(tmp_path)
+    assert len(log) >= 1
+    assert "Initial commit" in log[0]["message"]
