@@ -1,0 +1,3 @@
+from backend.app.mcp.server import mcp_server, MCP_TOOLS_MANIFEST
+
+__all__ = ["mcp_server", "MCP_TOOLS_MANIFEST"]
